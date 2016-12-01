@@ -48,26 +48,19 @@ public class Huffman
          node2.parent = parent;
          parent.left = (node1.compareTo(node2) < 0) ? node1:node2;
          parent.right = (node1.compareTo(node2) > 0) ? node1:node2;
-         if(node1.hasChar()){
-            charNodes.add(node1);
-         }
-         if(node2.hasChar()){
-            charNodes.add(node2);
-         }
-         //update all children binary
          huffmanTree.enqueue(parent);
          if(huffmanTree.size() == 1){
             updateAllBinary();
-//            for(Node n: charNodes)
-//               System.out.println(n);
             break;
          }
       }
    }
    
    public void compress(String infileName, String outfileName)throws FileNotFoundException, IOException{
-      
-      throw new RuntimeException("Finish this method");
+      FileReader fileReader = new FileReader(infileName);
+      FileWriter fileWriter = new FileWriter(outfileName);
+      fileWriter.write(stringToBinary(fileReader).toString());
+      fileWriter.close();
    }
    public void decompress(String infileName, String outfileName)throws FileNotFoundException, IOException{
       FileReader fr = new FileReader(infileName);  //Reads Binary String from infile
@@ -97,20 +90,20 @@ public class Huffman
       }
       return alphaString;
    }
-   private StringBuilder readString(String string) throws IOException{
-      InputStreamReader in = new InputStreamReader(new ByteArrayInputStream(string.getBytes())); //Allows me to read a string by character
-      BufferedReader stringReader = new BufferedReader(in); //reads InputStream by character
-      int nextChar = stringReader.read(); //initialize next character
-      StringBuilder outString;
-      while(nextChar != -1){ // while there is an unprocessed character in the string
+   private StringBuilder stringToBinary(FileReader fileReader) throws IOException{
+      StringBuilder binaryString = new StringBuilder();
+      int next = fileReader.read();
+      while(next != -1){
+         Character nextChar = (Character)((char)next);
          for(Node n: charNodes){
             if(n.character.equals(nextChar)){
-              // outString.append(n);
+               binaryString.append(n.binary);
+               break;
             }
          }
+         next = fileReader.read();
       }
-      //return binary string
-      throw new RuntimeException("Finish this method");
+      return binaryString;
    }
    private StringBuilder preorderHuffmanString(StringBuilder s, Node node){
       if(node.hasChar()){
@@ -124,7 +117,7 @@ public class Huffman
       return s;
    }
    private void updateAllBinary(){
-      ((Node)huffmanTree.peek()).updateBinary();
+      ((Node)huffmanTree.peek()).updateBinary("", charNodes);
    }
    //private Class
    private class Node implements Comparable<Node>{
@@ -133,42 +126,33 @@ public class Huffman
       private Node right;
       private Node left;
       private Integer occurences;
-      private StringBuilder binary;
+      private String binary;
       private Node parent;
       public Node(Character character){
          this.character = character;
          occurences = 1;
-         binary = new StringBuilder("");
+         binary = "";
       }
       public Node(Character character, Integer occurences){
          this.character = character;
          this.occurences = occurences;
-         binary = new StringBuilder("");
+         binary = "";
       }
       
       public boolean hasChar(){
          return (left == null && right == null);
       }
-      public void updateLeftBinary(StringBuilder current){
-         System.out.println("Current Binary: " + binary);
-         left.binary = current;
-         left.binary.append('0');
-      }
-      public void updateRightBinary(StringBuilder current){
-         System.out.println("Current Binary: " + binary);
-         right.binary = current;
-         right.binary.append('1');
-      }
-      public void updateBinary(){
-         System.out.println("Next node: " + occurences + " Binary: " + binary);
-//         if(!hasChar()){
-//            System.out.println("Left node: " + left.occurences + "\nRight Node: " + right.occurences);
-//            StringBuilder currentBinary = this.binary;
-//            updateLeftBinary(currentBinary);
-//            left.updateBinary();
-//            updateRightBinary(currentBinary);
-//            right.updateBinary();
-//         }
+      public void updateBinary(String parentString, ArrayList<Node> charNodes){
+         this.binary = parentString;
+         if(!hasChar()){
+            String leftBinary = parentString + "0";
+            String rightBinary = parentString + "1";
+            left.updateBinary(leftBinary, charNodes);
+            right.updateBinary(rightBinary, charNodes);
+         }
+         else{
+            charNodes.add(this);
+         }
       }
       @Override
       public int compareTo(Node other){
