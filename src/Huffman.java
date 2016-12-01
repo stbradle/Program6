@@ -38,29 +38,27 @@ public class Huffman
       charNodes = new ArrayList(256);
       while(huffmanTree.size() > 0){
          //Algorithm for creating huffmanTree from Priority Queue
-         Node node1 = (Node)(huffmanTree.dequeue());
-         Node node2 = (Node)(huffmanTree.dequeue());
-         char asciiValue =  (char) Math.min(node1.character, node2.character);
-         int frequency = node1.occurences + node2.occurences;
+         Node node1 = (Node)(huffmanTree.dequeue()); //creates first child node
+         Node node2 = (Node)(huffmanTree.dequeue()); //creates second child node
+         char asciiValue =  (char) Math.min(node1.character, node2.character); //chooses appropriate ascii value of parent node based on minimum of children
+         int frequency = node1.occurences + node2.occurences; //adds frequencies of children and assigns to parent
          //Creates Parent Node for 2 characters
-         Node parent = new Node(asciiValue, frequency);
-         node1.parent = parent;
-         node2.parent = parent;
-         parent.left = (node1.compareTo(node2) < 0) ? node1:node2;
-         parent.right = (node1.compareTo(node2) > 0) ? node1:node2;
-         huffmanTree.enqueue(parent);
-         if(huffmanTree.size() == 1){
-            updateAllBinary();
+         Node parent = new Node(asciiValue, frequency); //create parent node
+         parent.left = (node1.compareTo(node2) < 0) ? node1:node2; //if node1 less than node 2, parent.left = node 1
+         parent.right = (node1.compareTo(node2) > 0) ? node1:node2;//if node2 less than node 1, parent.right = node 2
+         huffmanTree.enqueue(parent); //adds parent node to tree
+         if(huffmanTree.size() == 1){ //ends the loop once last node is reached, last node becomes root of tree
+            updateAllBinary(); //updates binary code for each node in the tree, and adds characterContainingNodes to an arraylist
             break;
          }
       }
    }
    
    public void compress(String infileName, String outfileName)throws FileNotFoundException, IOException{
-      FileReader fileReader = new FileReader(infileName);
-      FileWriter fileWriter = new FileWriter(outfileName);
+      FileReader fileReader = new FileReader(infileName); //Reads Character string from infile
+      FileWriter fileWriter = new FileWriter(outfileName); //writes binary string to outfile
       fileWriter.write(stringToBinary(fileReader).toString());
-      fileWriter.close();
+      fileWriter.close(); //MUST CLOSE TO WRITE TO FILE
    }
    public void decompress(String infileName, String outfileName)throws FileNotFoundException, IOException{
       FileReader fr = new FileReader(infileName);  //Reads Binary String from infile
@@ -91,17 +89,17 @@ public class Huffman
       return alphaString;
    }
    private StringBuilder stringToBinary(FileReader fileReader) throws IOException{
-      StringBuilder binaryString = new StringBuilder();
-      int next = fileReader.read();
-      while(next != -1){
-         Character nextChar = (Character)((char)next);
-         for(Node n: charNodes){
-            if(n.character.equals(nextChar)){
-               binaryString.append(n.binary);
-               break;
+      StringBuilder binaryString = new StringBuilder(); //initialize output string
+      int next = fileReader.read(); //initialize next read from file
+      while(next != -1){ //while there are still characters to be read from file
+         Character nextChar = (Character)((char)next); //convert next into a Character to compare to node.character
+         for(Node n: charNodes){ //for each node in charNodes
+            if(n.character.equals(nextChar)){ //check if nodes character is equal to nextCharacter from file
+               binaryString.append(n.binary); //if equal then append node's binary string to outputString
+               break; //stop looking once node with correct character is reached
             }
          }
-         next = fileReader.read();
+         next = fileReader.read(); //after node is found, advance to next character in the file
       }
       return binaryString;
    }
@@ -127,7 +125,6 @@ public class Huffman
       private Node left;
       private Integer occurences;
       private String binary;
-      private Node parent;
       public Node(Character character){
          this.character = character;
          occurences = 1;
