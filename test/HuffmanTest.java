@@ -54,6 +54,7 @@ public class HuffmanTest
       Huffman h = new Huffman("simpleTestFrequencies.txt");
       String expected = "|acb|";
       String result = h.toString();
+      System.out.println(result);
       assertEquals(expected, result);
    }
 

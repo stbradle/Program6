@@ -17,7 +17,7 @@ public class Huffman
    //constructor
    public Huffman(String filename)throws FileNotFoundException, IOException{
       File file = new File(filename);
-      FileReader fileReader = new FileReader(file);
+      BufferedReader fileReader = new BufferedReader(new FileReader(file));
       int nextChar = fileReader.read();
       occurenceTracker = new HashMap(257); //hashMap size is nextPrime(256)
       while(nextChar != -1){//while there is a character left in the file
@@ -55,14 +55,14 @@ public class Huffman
    }
    
    public void compress(String infileName, String outfileName)throws FileNotFoundException, IOException{
-      FileReader fileReader = new FileReader(infileName); //Reads Character string from infile
-      FileWriter fileWriter = new FileWriter(outfileName); //writes binary string to outfile
+      BufferedReader fileReader = new BufferedReader(new FileReader(infileName)); //Reads Character string from infile
+      BufferedWriter fileWriter = new BufferedWriter(new FileWriter(outfileName)); //writes binary string to outfile
       fileWriter.write(stringToBinary(fileReader).toString());
       fileWriter.close(); //MUST CLOSE TO WRITE TO FILE
    }
    public void decompress(String infileName, String outfileName)throws FileNotFoundException, IOException{
-      FileReader fr = new FileReader(infileName);  //Reads Binary String from infile
-      FileWriter fw = new FileWriter(outfileName); //Writes Character String to outfile
+      BufferedReader fr = new BufferedReader(new FileReader(infileName));  //Reads Binary String from infile
+      BufferedWriter fw = new BufferedWriter(new FileWriter(outfileName)); //Writes Character String to outfile
       fw.write(binaryToChar(fr).toString());
       fw.close(); //MUST CLOSE WRITER TO WRITE TO FILE
       fr.close(); //CLOSE TO PREVENT MEMORY LEAK
@@ -74,7 +74,7 @@ public class Huffman
    }
    
    //private methods
-   private StringBuilder binaryToChar(FileReader fileReader) throws IOException{
+   private StringBuilder binaryToChar(BufferedReader fileReader) throws IOException{
       Node node;
       StringBuilder alphaString = new StringBuilder(); //StringBuilder used for efficiency with large strings
       int next = fileReader.read(); //initialize next character
@@ -88,7 +88,7 @@ public class Huffman
       }
       return alphaString;
    }
-   private StringBuilder stringToBinary(FileReader fileReader) throws IOException{
+   private StringBuilder stringToBinary(BufferedReader fileReader) throws IOException{
       StringBuilder binaryString = new StringBuilder(); //initialize output string
       int next = fileReader.read(); //initialize next read from file
       while(next != -1){ //while there are still characters to be read from file
@@ -115,7 +115,7 @@ public class Huffman
       return s;
    }
    private void updateAllBinary(){
-      ((Node)huffmanTree.peek()).updateBinary("", charNodes);
+      ((Node)huffmanTree.peek()).updateBinary("" , charNodes);
    }
    //private Class
    private class Node implements Comparable<Node>{
@@ -140,7 +140,6 @@ public class Huffman
          return (left == null && right == null);
       }
       public void updateBinary(String parentString, ArrayList<Node> charNodes){
-         this.binary = parentString;
          if(!hasChar()){
             String leftBinary = parentString + "0";
             String rightBinary = parentString + "1";
@@ -148,6 +147,7 @@ public class Huffman
             right.updateBinary(rightBinary, charNodes);
          }
          else{
+            this.binary = parentString;
             charNodes.add(this);
          }
       }
